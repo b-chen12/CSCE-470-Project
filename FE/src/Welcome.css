@@ -1,0 +1,57 @@
+/* src/Welcome.css */
+.welcome-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f7f7f7;
+  }
+  
+  .main-content {
+    text-align: center;
+  }
+  
+  .main-content h1 {
+    margin-bottom: 40px;
+    color: #333;
+    font-size: 2em;
+  }
+  
+  .buttons-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px; /* Spacing above the sign-out button */
+  }
+  
+  .buttons-container button, .sign-out-button {
+    padding: 15px 30px;
+    background-color: #6495ED;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .buttons-container button:hover, .sign-out-button:hover {
+    background-color: #7B68EE;
+  }
+  
+  .back-button {
+    padding: 10px 20px;
+    background-color: #6495ED;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+  }
+  
+  .back-button:hover {
+    background-color: #7B68EE;
+  }
