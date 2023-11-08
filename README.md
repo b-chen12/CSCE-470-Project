@@ -1,6 +1,23 @@
 # CSCE-470-Project
 
-# Front End Setup
+# Backend Setup
+
+To run the back end of this project, follow these steps:
+
+1. Change the current directory to the "BE" (Back End) folder:
+   ```bash
+   cd BE
+2. Install dependencies
+    ```bash
+    pip install fastapi uvicorn
+3. Start the backend
+    ```bash
+    python3 api.py
+
+This will launch the backend server, located at http://127.0.0.1:8000. So if you want to call the "hello" endpoint, you would call it via http://127.0.0.1:8000/hello
+
+
+# Frontend Setup
 
 To run the front end of this project, follow these steps:
 
