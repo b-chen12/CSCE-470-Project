@@ -21,6 +21,8 @@ This will launch the backend server, located at http://127.0.0.1:8000. So if you
 
 To run the front end of this project, follow these steps:
 
+Make sure you have node.js installed: https://nodejs.org/en/download
+
 1. Change the current directory to the "FE" (Front End) folder:
    ```bash
    cd FE
