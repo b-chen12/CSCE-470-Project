@@ -1,7 +1,6 @@
-// src/Login.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Login.css'; // Import the CSS file
+import './Login.css';
 
 const Login = () => {
   const [name, setName] = useState('');
@@ -14,10 +13,8 @@ const Login = () => {
     }
   };
 
-  // Check if name is empty to disable/enable the login button
   const isNameEmpty = name.trim() === '';
 
-  // Function to handle Enter key press
   const handleKeyPress = (event) => {
     if (event.key === 'Enter' && !isNameEmpty) {
       handleLogin();

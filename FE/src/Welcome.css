@@ -1,4 +1,3 @@
-/* src/Welcome.css */
 .welcome-container {
     height: 100vh;
     display: flex;
@@ -22,7 +21,7 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
-    margin-bottom: 20px; /* Spacing above the sign-out button */
+    margin-bottom: 20px;
   }
   
   .buttons-container button, .sign-out-button {

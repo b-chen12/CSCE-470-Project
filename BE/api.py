@@ -1,10 +1,19 @@
 import requests
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sklearn.metrics.pairwise import cosine_similarity
 
 API_KEY = '47239b1c022f44d1b8c885f71fd373ea'
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 ATTRIBUTES_CONSIDERED = ['vegetarian', 'vegan', 'veryHealthy', 'dairyFree', 'dairyFree'] + ['healthScore', 'pricePerServing']
 

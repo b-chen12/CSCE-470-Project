@@ -1,37 +1,83 @@
-// src/RecipeDetail.js
-import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import './RecipeDetail.css'; // Assuming you have specific styles for this page
+import React, { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import './RecipeDetail.css';
 
 const RecipeDetail = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const recipe = location.state?.recipe;
+  const { id } = useParams();
+  const [recipe, setRecipe] = useState(null);
+  const [similarRecipes, setSimilarRecipes] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  if (!recipe) {
-    return <p>Recipe not found.</p>;
+  useEffect(() => {
+    const fetchRecipeDetails = async () => {
+      const apiKey = '47239b1c022f44d1b8c885f71fd373ea';
+      const url = `https://api.spoonacular.com/recipes/${id}/information?apiKey=${apiKey}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        setRecipe(data);
+      } catch (error) {
+        console.error('Error fetching recipe details:', error);
+      }
+    };
+
+    const fetchSimilarRecipes = async () => {
+      const url = `http://127.0.0.1:8000/get_similar_recipes/${id}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        setSimilarRecipes(data);
+        console.log(1+1);
+      } catch (error) {
+        console.error('Error fetching similar recipes:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchRecipeDetails();
+    fetchSimilarRecipes();
+  }, [id]);
+
+  if (isLoading) {
+    return <div className="loader"></div>;
   }
 
-  // Function to handle navigation to a recommended recipe
-  const handleRecommendedRecipeClick = (recommendedRecipeId) => {
-    // Navigate to the detail page of the recommended recipe
-    navigate(`/recipes/${recommendedRecipeId}`, { state: { /* fetch or find the recipe data */ } });
-  };
+  if (!recipe) {
+    return <div className="error-message">Recipe not found</div>;
+  }
 
   return (
     <div className="recipe-detail-page">
-      <button onClick={() => navigate(-1)} className="back-button">Back</button>
-      <h1>{recipe.title}</h1>
-      <img src={recipe.image} alt={recipe.title} />
-      {/* Display other important details of the recipe */}
-      <div className="recommended-recipes">
-        {/* Assuming you have a list of recommended recipe IDs */}
-        {recipe.recommendedRecipes.map(id => (
-          <div key={id} onClick={() => handleRecommendedRecipeClick(id)}>
-            {/* Display recommended recipe summary */}
-          </div>
-        ))}
-      </div>
+      <h1 className="recipe-title">{recipe.title}</h1>
+      <img className="recipe-image" src={recipe.image} alt={recipe.title} />
+      <div className="recipe-summary" dangerouslySetInnerHTML={{ __html: recipe.summary }} />
+
+      {recipe.extendedIngredients && (
+        <div className="ingredients-section">
+          <h2>Ingredients</h2>
+          <ul className="ingredients-list">
+            {recipe.extendedIngredients.map((ingredient) => (
+              <li key={ingredient.id}>{ingredient.original}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {similarRecipes.length > 0 && (
+        <div className="similar-recipes-section">
+          <h2>Similar Recipes that ByteBites recommends</h2>
+          <ul className="similar-recipes-list">
+            {similarRecipes.map((similarRecipe) => (
+              <li key={similarRecipe.id}>
+                <Link to={`/recipes/${similarRecipe.id}`}>{similarRecipe.title}</Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };

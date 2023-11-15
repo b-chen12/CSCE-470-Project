@@ -89,14 +89,112 @@
 }
 
 .recipe-title {
-  font-size: 1.2em;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 8px;
+  font-size: 2em;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #2c3e50;
 }
 
-/* Additional styles for other details */
 .recipe-detail {
   font-size: 0.9em;
   color: #666;
+}
+
+.recipe-detail-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+  color: #333;
+}
+
+.loader, .error-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.ingredients-list {
+  list-style: none;
+  padding: 0;
+}
+
+.ingredients-list h2 {
+  font-size: 1.5em;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.ingredients-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.ingredients-list li {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 8px 15px;
+  margin-bottom: 5px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.recipe-image {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.recipe-summary {
+  margin-top: 20px;
+  line-height: 1.6;
+  text-align: justify;
+}
+
+
+.ingredients-section {
+  margin-top: 30px;
+}
+
+.similar-recipes-section {
+  margin-top: 30px;
+  width: 100%;
+  max-width: 800px;
+}
+
+.similar-recipes-list {
+  list-style: none;
+  padding: 0;
+}
+
+.similar-recipes-list li {
+  background: #f7f7f7;
+  margin: 10px 0;
+  padding: 10px;
+  border-left: 5px solid #3498db;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.similar-recipes-list li:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.similar-recipes-list li a {
+  color: #333;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+.similar-recipes-list li a:hover {
+  color: #3498db;
 }

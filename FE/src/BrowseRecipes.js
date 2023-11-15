@@ -1,4 +1,3 @@
-// src/BrowseRecipes.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './RecipePage.css';
@@ -49,7 +48,7 @@ const BrowseRecipes = () => {
       </div>
       <div className="recipes-container">
         {recipes.map(recipe => (
-          <div key={recipe.id} className="recipe">
+          <div key={recipe.id} className="recipe" onClick={() => navigate(`/recipes/${recipe.id}`)}>
             <h3>{recipe.title}</h3>
             <img src={recipe.image} alt={recipe.title} />
           </div>

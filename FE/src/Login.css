@@ -1,4 +1,3 @@
-/* src/Login.css */
 .login-container {
     position: relative;
     height: 100vh;
@@ -15,7 +14,7 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
-    z-index: 1; /* Behind the login box */
+    z-index: 1;
   }
   
   .floating-element {
@@ -23,8 +22,7 @@
     font-size: 3em;
     animation: float 6s ease-in-out infinite;
   }
-  
-  /* Adjusted positions for better spacing */
+
   .utensil { top: 5%; left: 10%; }
   .laptop { top: 5%; right: 10%; }
   .chef-hat { bottom: 5%; left: 10%; }
@@ -75,7 +73,7 @@
     padding: 15px;
     margin-bottom: 20px;
     border: none;
-    border-bottom: 2px solid #6495ED; /* Cornflower blue, a darker yet light blue */
+    border-bottom: 2px solid #6495ED;
     width: 100%;
     box-sizing: border-box;
     transition: border-color 0.3s;
@@ -84,12 +82,12 @@
   
   .login-box input:focus {
     outline: none;
-    border-bottom: 2px solid #7B68EE; /* Medium slate blue, for focus state */
+    border-bottom: 2px solid #7B68EE;
   }
   
   .login-box button {
     padding: 15px 30px;
-    background-color: #6495ED; /* Cornflower blue */
+    background-color: #6495ED;
     color: white;
     border: none;
     border-radius: 25px;
@@ -100,12 +98,12 @@
   }
   
   .login-box button:hover {
-    background-color: #7B68EE; /* Medium slate blue for hover */
+    background-color: #7B68EE;
   }
 
   .login-box button {
     padding: 15px 30px;
-    background-color: #6495ED; /* Default lighter blue color */
+    background-color: #6495ED;
     color: white;
     border: none;
     border-radius: 25px;
@@ -116,12 +114,12 @@
   }
   
   .login-box button:hover {
-    background-color: #7B68EE; /* Slightly different blue for hover */
+    background-color: #7B68EE;
   }
   
   .login-box button:disabled {
-    background-color: #add8e6; /* Light blue color for disabled state */
+    background-color: #add8e6;
     cursor: not-allowed;
-    opacity: 0.7; /* Optional: reduces the opacity of the button when disabled */
+    opacity: 0.7;
   }
   
