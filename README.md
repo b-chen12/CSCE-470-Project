@@ -10,6 +10,7 @@ To run the back end of this project, follow these steps:
 2. Install dependencies
     ```bash
     pip install fastapi uvicorn
+    pip install requests
 3. Start the backend
     ```bash
     python3 api.py
