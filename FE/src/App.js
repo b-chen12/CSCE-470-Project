@@ -7,6 +7,7 @@ import RecommendedRecipesByGenre from './RecommendedRecipesByGenre';
 import BrowseRecipes from './BrowseRecipes';
 import PreviousRatings from './PreviousRatings';
 import RecipeDetail from './RecipeDetail';
+import SelectAndRateRecipes from './SelectAndRateRecipes';
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
         <Route path="/browse-recipes" element={<BrowseRecipes />} />
         <Route path="/previous-ratings" element={<PreviousRatings />} />
         <Route path="/recipes/:id" element={<RecipeDetail />} />
+        <Route path="/select-and-rate-recipes" element={<SelectAndRateRecipes />} />
       </Routes>
     </Router>
   );

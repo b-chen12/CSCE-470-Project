@@ -9,7 +9,12 @@ const Login = () => {
   const handleLogin = () => {
     if (name.trim() !== '') {
       localStorage.setItem('userName', name);
-      navigate('/welcome');
+      if (1 + 1 > 1) {
+        navigate('/select-and-rate-recipes')
+      }
+      else {
+        navigate('/welcome');
+      }
     }
   };
 
