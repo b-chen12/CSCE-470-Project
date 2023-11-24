@@ -6,17 +6,28 @@ const Login = () => {
   const [name, setName] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (name.trim() !== '') {
-      localStorage.setItem('userName', name);
-      if (1 + 1 > 1) {
-        navigate('/select-and-rate-recipes')
-      }
-      else {
-        navigate('/welcome');
-      }
+        try {
+            // Check if the username exists
+            const response = await fetch('http://localhost:8000/checkUsername', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username: name }),
+            });
+
+            const result = await response.json();
+
+            }
+        } catch (error) {
+            console.error('Error checking username:', error);
+            alert('An error occurred while checking the username. Please try again.');
+        }
     }
-  };
+};
+
 
   const isNameEmpty = name.trim() === '';
 
