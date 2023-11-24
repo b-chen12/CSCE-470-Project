@@ -1,5 +1,4 @@
 import requests
-from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -14,6 +13,63 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+class UsernameCheck(BaseModel):
+    username: str
+
+class UsernameAdd(BaseModel):
+    username: str
+
+# API endpoint to check if the username exists
+@app.post("/checkUsername")
+async def check_username(data: UsernameCheck):
+    try:
+        # Create a connection to the database
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
+
+        # Query the database to check if the username exists
+        query = "SELECT * FROM Users WHERE Username = %s"
+        cursor.execute(query, (data.username,))
+        result = cursor.fetchall()
+
+        if result:
+            # Username already exists
+            return {"exists": True}
+        else:
+            # Username does not exist
+            return {"exists": False}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+    finally:
+        # Close the database connection
+        cursor.close()
+        connection.close()
+
+@app.post("/addUsername")
+async def add_username(data: UsernameAdd):
+    try:
+        # Create a connection to the database
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
+
+        # Insert the new username into the database
+        query = "INSERT INTO Users (Username) VALUES (%s)"
+        cursor.execute(query, (data.username,))
+        connection.commit()
+
+        return {"message": "Username added successfully"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+    finally:
+        # Close the database connection
+        cursor.close()
+        connection.close()
+ 
 
 ATTRIBUTES_CONSIDERED = ['vegetarian', 'vegan', 'veryHealthy', 'dairyFree', 'dairyFree'] + ['healthScore', 'pricePerServing']
 
