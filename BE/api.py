@@ -1,8 +1,19 @@
 import requests
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sklearn.metrics.pairwise import cosine_similarity
+import mysql.connector
+from pydantic import BaseModel
 
 API_KEY = '47239b1c022f44d1b8c885f71fd373ea'
+
+db_config = {
+    "host": "sql5.freesqldatabase.com",
+    "user": "sql5664841",
+    "password": "lAPVsamawY",
+    "database": "sql5664841",
+    "port": 3306,
+}
 
 app = FastAPI()
 
