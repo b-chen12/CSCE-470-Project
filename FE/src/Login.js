@@ -20,6 +20,30 @@ const Login = () => {
 
             const result = await response.json();
 
+            if (result.exists) {
+                // Username already exists, display an error message
+                alert('Username already exists. Please select a new username.');
+            } else {
+                // Username does not exist, add the user to the database
+                // You can add code here to send the username to the server and store it in the database
+                const addUserResponse = await fetch('http://localhost:8000/addUsername', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username: name }),
+                });
+
+                const addUserResult = await addUserResponse.json();
+
+                // Log the server response (you can handle it as needed)
+                console.log(addUserResult);
+
+                // For now, just store the username in localStorage
+                localStorage.setItem('userName', name);
+
+                // Navigate to the appropriate page
+                navigate('/select-and-rate-recipes');
             }
         } catch (error) {
             console.error('Error checking username:', error);
