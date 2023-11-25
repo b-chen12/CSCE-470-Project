@@ -115,6 +115,28 @@ async def store_ratings(ratings: List[Rating]):
         cursor.close()
         connection.close()
 
+@app.get("/userRatings/{username}")
+async def get_user_ratings(username: str):
+    try:
+        # Create a connection to the database
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor(dictionary=True)
+
+        # Query the database to get user ratings
+        query = "SELECT RecipeID, Rating FROM Ratings WHERE UserID = (SELECT UserID FROM Users WHERE Username = %s)"
+        cursor.execute(query, (username,))
+        user_ratings = cursor.fetchall()
+
+        return user_ratings
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+    finally:
+        # Close the database connection
+        cursor.close()
+        connection.close()
+        
 ATTRIBUTES_CONSIDERED = ['vegetarian', 'vegan', 'veryHealthy', 'dairyFree', 'dairyFree'] + ['healthScore', 'pricePerServing']
 
 def get_recipe_details(id: str):
