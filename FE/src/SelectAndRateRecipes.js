@@ -57,14 +57,42 @@ const SelectAndRateRecipes = () => {
     setRatings({ ...ratings, [id]: rating });
   };
 
-  const goToNextStep = () => {
+  const goToNextStep = async () => {
     if (step === 1 && selectedRecipes.size >= 5) {
       setStep(2);
     } else if (step === 2) {
-      console.log('Ratings:', ratings);
-      navigate('/welcome');
+      // Extract userName from localStorage
+      const userName = localStorage.getItem('userName');
+  
+      // Flatten ratings to an array of objects
+      const flattenedRatings = Object.entries(ratings).map(([recipeId, rating]) => ({
+        userName,
+        recipe_id: parseInt(recipeId, 10),
+        rating,
+      }));
+      console.log(flattenedRatings);
+      // Send flattened ratings to the backend
+      try {
+        const response = await fetch('http://localhost:8000/storeRatings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(flattenedRatings),
+        });
+  
+        if (response.ok) {
+          console.log('Ratings stored successfully');
+          navigate('/welcome');
+        } else {
+          console.error('Failed to store ratings');
+        }
+      } catch (error) {
+        console.error('Error storing ratings:', error);
+      }
     }
   };
+  
 
   return (
     <div className="select-recipes-container">
