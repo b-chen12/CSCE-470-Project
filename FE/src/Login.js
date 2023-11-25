@@ -6,17 +6,54 @@ const Login = () => {
   const [name, setName] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (name.trim() !== '') {
-      localStorage.setItem('userName', name);
-      if (1 + 1 > 1) {
-        navigate('/select-and-rate-recipes')
-      }
-      else {
-        navigate('/welcome');
-      }
+        try {
+            // Check if the username exists
+            const response = await fetch('http://localhost:8000/checkUsername', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username: name }),
+            });
+
+            const result = await response.json();
+
+            if (result.exists) {
+              // Username already exists, display an error message
+              localStorage.setItem('userName', name);
+              navigate('/welcome');
+
+            } else {
+              // Username does not exist, add the user to the database
+              // You can add code here to send the username to the server and store it in the database
+              const addUserResponse = await fetch('http://localhost:8000/addUsername', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ username: name }),
+              });
+
+              const addUserResult = await addUserResponse.json();
+
+              // Log the server response (you can handle it as needed)
+              console.log(addUserResult);
+
+              // For now, just store the username in localStorage
+              localStorage.setItem('userName', name);
+
+              // Navigate to the appropriate page
+              navigate('/select-and-rate-recipes');
+            }
+        } catch (error) {
+            console.error('Error checking username:', error);
+            alert('An error occurred while checking the username. Please try again.');
+        }
     }
-  };
+};
+
 
   const isNameEmpty = name.trim() === '';
 

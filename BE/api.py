@@ -1,9 +1,20 @@
 import requests
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sklearn.metrics.pairwise import cosine_similarity
+import mysql.connector
+from pydantic import BaseModel
+from typing import List
 
 API_KEY = '47239b1c022f44d1b8c885f71fd373ea'
+
+db_config = {
+    "host": "sql5.freesqldatabase.com",
+    "user": "sql5664841",
+    "password": "lAPVsamawY",
+    "database": "sql5664841",
+    "port": 3306,
+}
 
 app = FastAPI()
 
@@ -15,6 +26,117 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class UsernameCheck(BaseModel):
+    username: str
+
+class UsernameAdd(BaseModel):
+    username: str
+
+class Rating(BaseModel):
+    userName: str
+    recipe_id: int
+    rating: int
+
+
+# API endpoint to check if the username exists
+@app.post("/checkUsername")
+async def check_username(data: UsernameCheck):
+    try:
+        # Create a connection to the database
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
+
+        # Query the database to check if the username exists
+        query = "SELECT * FROM Users WHERE Username = %s"
+        cursor.execute(query, (data.username,))
+        result = cursor.fetchall()
+
+        if result:
+            # Username already exists
+            return {"exists": True}
+        else:
+            # Username does not exist
+            return {"exists": False}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+    finally:
+        # Close the database connection
+        cursor.close()
+        connection.close()
+
+@app.post("/addUsername")
+async def add_username(data: UsernameAdd):
+    try:
+        # Create a connection to the database
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
+
+        # Insert the new username into the database
+        query = "INSERT INTO Users (Username) VALUES (%s)"
+        cursor.execute(query, (data.username,))
+        connection.commit()
+
+        return {"message": "Username added successfully"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+    finally:
+        # Close the database connection
+        cursor.close()
+        connection.close()
+@app.post("/storeRatings")
+async def store_ratings(ratings: List[Rating]):
+    try:
+        # Create a connection to the database
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
+
+        # Insert ratings into the database
+        for rating in ratings:
+            query = "INSERT INTO Ratings (UserID, RecipeID, Rating) VALUES ((SELECT UserID FROM Users WHERE Username = %s), %s, %s)"
+            params = (rating.userName, rating.recipe_id, rating.rating)
+
+            # Execute the query
+            cursor.execute(query, params)
+
+        # Commit the changes
+        connection.commit()
+
+        return {"message": "Ratings stored successfully"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+    finally:
+        # Close the database connection
+        cursor.close()
+        connection.close()
+
+@app.get("/userRatings/{username}")
+async def get_user_ratings(username: str):
+    try:
+        # Create a connection to the database
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor(dictionary=True)
+
+        # Query the database to get user ratings
+        query = "SELECT RecipeID, Rating FROM Ratings WHERE UserID = (SELECT UserID FROM Users WHERE Username = %s)"
+        cursor.execute(query, (username,))
+        user_ratings = cursor.fetchall()
+
+        return user_ratings
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+    finally:
+        # Close the database connection
+        cursor.close()
+        connection.close()
+        
 ATTRIBUTES_CONSIDERED = ['vegetarian', 'vegan', 'veryHealthy', 'dairyFree', 'dairyFree'] + ['healthScore', 'pricePerServing']
 
 def get_recipe_details(id: str):
