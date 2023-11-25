@@ -95,6 +95,36 @@ async def get_similar_recipes(id: str):
     top_similar_recipes = sorted(similarities, key=lambda x: x[1], reverse=True)[:10]
     return [recipe for recipe,_ in top_similar_recipes]
 
+@app.get("/recommend_recipes/{id}")
+def recommend_recipes(user_id: str):
+    # Fetch user ratings from the database
+    user_ratings = get_user_ratings(user_id)
+
+    # Fetch the recipes that the user has rated
+    rated_recipe_ids = list(user_ratings.keys())
+    rated_recipes = [get_recipe_details(recipe_id) for recipe_id in rated_recipe_ids]
+
+    # Extract ingredients from rated recipes
+    all_ingredients = extract_ingredients(rated_recipes)
+
+    # Create a user vector based on rated recipes
+    user_vector = [create_feature_vector(recipe, all_ingredients) for recipe in rated_recipes]
+
+    # Fetch random recipes for comparison
+    comparing_recipes_details = get_random_recipes(100)
+
+    # Calculate similarity between user vector and each comparing recipe
+    similarities = []
+
+    for recipe in comparing_recipes_details:
+        recipe_vector = create_feature_vector(recipe, all_ingredients)
+        similarity = cosine_similarity([user_vector, recipe_vector])[0][1]
+        similarities.append((recipe, similarity))
+
+    # Get top 10 similar recipes
+    top_similar_recipes = sorted(similarities, key=lambda x: x[1], reverse=True)[:10]
+    return [recipe for recipe, _ in top_similar_recipes]
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
