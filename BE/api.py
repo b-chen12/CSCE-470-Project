@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sklearn.metrics.pairwise import cosine_similarity
 import mysql.connector
 from pydantic import BaseModel
+from typing import List
 
 API_KEY = '47239b1c022f44d1b8c885f71fd373ea'
 
@@ -30,6 +31,12 @@ class UsernameCheck(BaseModel):
 
 class UsernameAdd(BaseModel):
     username: str
+
+class Rating(BaseModel):
+    userName: str
+    recipe_id: int
+    rating: int
+
 
 # API endpoint to check if the username exists
 @app.post("/checkUsername")
@@ -80,7 +87,33 @@ async def add_username(data: UsernameAdd):
         # Close the database connection
         cursor.close()
         connection.close()
- 
+@app.post("/storeRatings")
+async def store_ratings(ratings: List[Rating]):
+    try:
+        # Create a connection to the database
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
+
+        # Insert ratings into the database
+        for rating in ratings:
+            query = "INSERT INTO Ratings (UserID, RecipeID, Rating) VALUES ((SELECT UserID FROM Users WHERE Username = %s), %s, %s)"
+            params = (rating.userName, rating.recipe_id, rating.rating)
+
+            # Execute the query
+            cursor.execute(query, params)
+
+        # Commit the changes
+        connection.commit()
+
+        return {"message": "Ratings stored successfully"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+    finally:
+        # Close the database connection
+        cursor.close()
+        connection.close()
 
 ATTRIBUTES_CONSIDERED = ['vegetarian', 'vegan', 'veryHealthy', 'dairyFree', 'dairyFree'] + ['healthScore', 'pricePerServing']
 
