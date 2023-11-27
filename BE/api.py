@@ -87,6 +87,7 @@ async def add_username(data: UsernameAdd):
         # Close the database connection
         cursor.close()
         connection.close()
+        
 @app.post("/storeRatings")
 async def store_ratings(ratings: List[Rating]):
     try:
@@ -218,12 +219,12 @@ async def get_similar_recipes(id: str):
     return [recipe for recipe,_ in top_similar_recipes]
 
 @app.get("/recommend_recipes/{id}")
-def recommend_recipes(user_id: str):
+async def recommend_recipes_based_on_ratings(user_id: str):
     # Fetch user ratings from the database
     user_ratings = get_user_ratings(user_id)
 
     # Fetch the recipes that the user has rated
-    rated_recipe_ids = list(user_ratings.keys())
+    rated_recipe_ids = [rating['RecipeID'] for rating in user_ratings]
     rated_recipes = [get_recipe_details(recipe_id) for recipe_id in rated_recipe_ids]
 
     # Extract ingredients from rated recipes
