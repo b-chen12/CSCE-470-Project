@@ -1,10 +1,12 @@
 import requests
+import numpy as np
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sklearn.metrics.pairwise import cosine_similarity
 import mysql.connector
 from pydantic import BaseModel
 from typing import List
+import httpx
 
 API_KEY = '47239b1c022f44d1b8c885f71fd373ea'
 
@@ -59,6 +61,7 @@ async def check_username(data: UsernameCheck):
             return {"exists": False}
 
     except Exception as e:
+        
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
     finally:
@@ -81,6 +84,7 @@ async def add_username(data: UsernameAdd):
         return {"message": "Username added successfully"}
 
     except Exception as e:
+        
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
     finally:
@@ -109,6 +113,7 @@ async def store_ratings(ratings: List[Rating]):
         return {"message": "Ratings stored successfully"}
 
     except Exception as e:
+        
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
     finally:
@@ -218,35 +223,77 @@ async def get_similar_recipes(id: str):
     top_similar_recipes = sorted(similarities, key=lambda x: x[1], reverse=True)[:10]
     return [recipe for recipe,_ in top_similar_recipes]
 
-@app.get("/recommend_recipes/{id}")
-async def recommend_recipes_based_on_ratings(user_id: str):
+async def calculate_similarity_score(new_recipe_vector, existing_recipe_vectors):
+    # Using cosine similarity as the similarity metric
+    similarity_scores = await cosine_similarity([new_recipe_vector], existing_recipe_vectors)[0]
+    return similarity_scores
+
+async def calculate_weighted_average_rating(user_ratings, similarity_scores):
+    weighted_ratings = user_ratings * similarity_scores
+    weighted_average_rating = np.sum(weighted_ratings) / np.sum(similarity_scores)
+    return weighted_average_rating
+
+async def create_user_vector(username, all_ingredients):
     # Fetch user ratings from the database
-    user_ratings = get_user_ratings(user_id)
+    user_ratings = await get_user_ratings(username)
 
-    # Fetch the recipes that the user has rated
-    rated_recipe_ids = [rating['RecipeID'] for rating in user_ratings]
-    rated_recipes = [get_recipe_details(recipe_id) for recipe_id in rated_recipe_ids]
+    # Extract recipe IDs and ratings
+    recipe_ids, ratings = zip(*user_ratings)
 
-    # Extract ingredients from rated recipes
-    all_ingredients = extract_ingredients(rated_recipes)
+    # Fetch recipe details from the Spoonacular API
+    recipes = [get_recipe_details(str(recipe_id)) for recipe_id in recipe_ids]
 
-    # Create a user vector based on rated recipes
-    user_vector = [create_feature_vector(recipe, all_ingredients) for recipe in rated_recipes]
+    # Create feature vectors for user recipes
+    user_recipe_vectors = [create_feature_vector(recipe, all_ingredients) for recipe in recipes]
 
-    # Fetch random recipes for comparison
-    comparing_recipes_details = get_random_recipes(100)
+    # Average feature vectors to create a user vector
+    user_vector = np.mean(user_recipe_vectors, axis=0)
 
-    # Calculate similarity between user vector and each comparing recipe
-    similarities = []
+    return user_vector
 
-    for recipe in comparing_recipes_details:
-        recipe_vector = create_feature_vector(recipe, all_ingredients)
-        similarity = cosine_similarity([user_vector, recipe_vector])[0][1]
-        similarities.append((recipe, similarity))
+@app.get("/rate_random_recipes/{username}")
+async def rate_random_recipes(username: str):
+    try:
+        # Fetch user ratings from the database
+        user_ratings = await get_user_ratings(username)
 
-    # Get top 10 similar recipes
-    top_similar_recipes = sorted(similarities, key=lambda x: x[1], reverse=True)[:10]
-    return [recipe for recipe, _ in top_similar_recipes]
+        # Fetch random recipes asynchronously
+        random_recipes = await fetch_random_recipes(100)
+
+        # Extract ingredients from random recipes
+        all_ingredients = extract_ingredients(random_recipes['recipes'])
+
+        # Create feature vectors for random recipes
+        random_recipe_vectors = [create_feature_vector(recipe, all_ingredients) for recipe in random_recipes['recipes']]
+
+        # Calculate similarity scores
+        user_vector = await create_user_vector(username, all_ingredients)
+        similarity_scores = await calculate_similarity_score(user_vector, random_recipe_vectors)
+
+        # Invert similarity scores for weighting
+        weights = 1 / (similarity_scores + 1e-10)  # Adding a small number to avoid division by zero
+
+        # Convert user_ratings to a NumPy array
+        user_ratings_array = np.array(user_ratings)[:, 1]
+
+        # Calculate weighted average rating
+        weighted_average_ratings = await calculate_weighted_average_rating(user_ratings_array, weights)
+
+        # Combine recipe IDs and weighted average ratings
+        recipe_ratings = list(zip(random_recipes['recipes'], weighted_average_ratings))
+
+        # Sort recipes by their predicted ratings in descending order
+        sorted_recipes = sorted(recipe_ratings, key=lambda x: x[1], reverse=True)
+
+        # Return the top 10 highest rated recipes
+        top_10_recipes = sorted_recipes[:10]
+
+        return {"top_10_recipes": top_10_recipes}
+
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
 
 if __name__ == "__main__":
     import uvicorn
