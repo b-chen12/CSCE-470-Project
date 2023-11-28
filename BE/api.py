@@ -154,6 +154,18 @@ def extract_ingredients(recipes):
 
     return list(all_ingredients)
 
+def normalize_features(recipe):
+    # Normalize binary features to 0 or 1
+    binary_features = ['vegetarian', 'vegan', 'veryHealthy', 'dairyFree', 'dairyFree']
+    for feature in binary_features:
+        recipe[feature] = 1 if recipe[feature] else 0
+
+    # Normalize other features based on your data range
+    # Add more features as needed
+    recipe['healthScore'] /= 100  # Example normalization for healthScore
+
+    return recipe
+
 def get_random_recipes(number_of_recipes: int):
     url = f"https://api.spoonacular.com/recipes/random"
     params = {
@@ -162,11 +174,16 @@ def get_random_recipes(number_of_recipes: int):
     }
     response = requests.get(url, params=params)
     return response.json()['recipes'] if response.status_code == 200 else None
+def calculate_weights(similarity_scores, epsilon=1e-5):
+    # Invert the similarity scores and add a small epsilon to avoid division by zero
+    return [1 / (score + epsilon) for score in similarity_scores]
 
 def create_feature_vector(recipe, all_ingredients):
     HIGH_WEIGHT = 1.0
     MED_WEIGHT = 0.8
     LOW_WEIGHT = 0.3
+
+    recipe = normalize_features(recipe)
 
     vector = []
 
@@ -217,6 +234,6 @@ async def get_similar_recipes(id: str):
     top_similar_recipes = sorted(similarities, key=lambda x: x[1], reverse=True)[:10]
     return [recipe for recipe,_ in top_similar_recipes]
 
-if __name__ == "__main__":
+if __name__ == "__main__":  
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
