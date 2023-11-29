@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from typing import List
 import httpx
 
-API_KEY = '47239b1c022f44d1b8c885f71fd373ea'
+API_KEY = '0628066b63b349d686703a51b0da80f2'
 
 db_config = {
     "host": "sql5.freesqldatabase.com",
@@ -319,6 +319,7 @@ async def recommend_recipes_for_user_with_history(username: str):
         # Extract top 10 recommended recipes
         top_recommendations = [recipe for recipe, _ in sorted_recipes[:10]]
 
+        print(top_recommendations)
 
         return {"recommendations": top_recommendations}
 
