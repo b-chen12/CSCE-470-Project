@@ -11,7 +11,7 @@ const SelectAndRateRecipes = () => {
 
   useEffect(() => {
     const fetchRandomRecipes = async () => {
-      const apiKey = '47239b1c022f44d1b8c885f71fd373ea';
+      const apiKey = '7f4798b486ef4dc9b1e44e1740e0939f';
       const response = await fetch(`https://api.spoonacular.com/recipes/random?apiKey=${apiKey}&number=20`);
       const data = await response.json();
       setRecipes(data.recipes);

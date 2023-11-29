@@ -7,7 +7,7 @@ import numpy as np
 from pydantic import BaseModel
 from typing import List
 
-API_KEY = '47239b1c022f44d1b8c885f71fd373ea'
+API_KEY = '7f4798b486ef4dc9b1e44e1740e0939f'
 
 db_config = {
     "host": "sql5.freesqldatabase.com",
