@@ -21,14 +21,20 @@ const RecommendedRecipes = () => {
     <div className="recipe-page">
       <button onClick={() => navigate('/welcome')} className="back-button">Back to Welcome</button>
       <h1 className="page-title">Recommended Recipes</h1>
-      <div className="recommended-recipes">
-        {recommendedRecipes.map((recipe, index) => (
-          <div key={index} className="recipe-card">
-            <h2>{recipe.title}</h2>
-            {/* Add more details or styling as needed */}
-          </div>
-        ))}
-      </div>
+      {recommendedRecipes.length === 0 ? (
+        // Render loading spinner when recommendedRecipes is empty
+        <div className="loading-spinner">Loading...</div>
+      ) : (
+        // Render recommended recipes when the array is populated
+        <div className="recommended-recipes">
+          {recommendedRecipes.map((recipe, index) => (
+            <div key={index} className="recipe-card">
+              <h2>{recipe.title}</h2>
+              {/* Add more details or styling as needed */}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
