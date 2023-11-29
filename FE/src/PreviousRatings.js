@@ -1,47 +1,75 @@
-// src/PreviousRatings.js
+
+// src/UserRatingsPage.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './RecipePage.css';
 
-const PreviousRatings = () => {
+const UserRatingsPage = () => {
+  const [userRatings, setUserRatings] = useState([]);
+  const [recipeDetails, setRecipeDetails] = useState({});
   const navigate = useNavigate();
-  
-  const userName = localStorage.getItem('userName');
-  const [recipes, setRecipes] = useState([]);
-  const [recipe, setRecipe] = useState(null);
 
   useEffect(() => {
-    const fetchRatings = async () => {
-      const url = `http://127.0.0.1:8000/userRatings/${userName}`;
+    // Fetch user ratings based on the username from localStorage
+    const fetchUserRatings = async () => {
+      const userName = localStorage.getItem('userName');
 
       try {
-        const response = await fetch(url);
-        console.log(response);
-        const data = await response.json();
-        console.log(data);
-        setRecipes(data);
+        const response = await fetch(`http://localhost:8000/userRatings/${userName}`);
+        if (response.ok) {
+          const data = await response.json();
+          setUserRatings(data);
+          // Fetch details for each recipe ID
+          data.forEach((rating) => fetchRecipeDetails(rating.RecipeID));
+        } else {
+          console.error('Failed to fetch user ratings');
+        }
       } catch (error) {
-        console.error('Error fetching recipe details:', error);
+        console.error('Error fetching user ratings:', error);
       }
     };
-    fetchRatings();
-    
-    console.log(recipes);
+
+    const fetchRecipeDetails = async (recipeID) => {
+      try {
+        const response = await fetch(`http://localhost:8000/fetch_recipe_details/${recipeID}`);
+        if (response.ok) {
+          const data = await response.json();
+          setRecipeDetails((prevDetails) => ({ ...prevDetails, [recipeID]: data.title }));
+        } else {
+          console.error(`Failed to fetch details for recipe ID ${recipeID}`);
+        }
+      } catch (error) {
+        console.error(`Error fetching details for recipe ID ${recipeID}:`, error);
+      }
+    };
+
+    fetchUserRatings();
   }, []);
 
   return (
-    <div className="recipe-page">
-      <button onClick={() => navigate('/welcome')} className="back-button">Back to Welcome</button>
+    <div className="user-ratings-page">
+      <button onClick={() => navigate('/welcome')} className="back-button">
+        Back to Welcome
+      </button>
       <h1 className="page-title">Previous Ratings</h1>
-      <div className="recipes-container">
-        {recipes.map((recipe) => (
-          <div key={recipe.RecipeId} className="recipe" onClick={() => navigate(`/recipes/${recipe.RecipeId}`)}>
-          <h3>{recipe.Rating}</h3>
+
+      {userRatings.length === 0 ? (
+        <p>No ratings found for the user.</p>
+      ) : (
+        <div className="recipes-container">
+          {userRatings.map((rating) => (
+            <div
+              key={rating.RecipeID}
+              className="recipe"
+              onClick={() => navigate(`/recipes/${rating.RecipeID}`)}
+            >
+              <h3>{recipeDetails[rating.RecipeID]}</h3>
+              <p>Rating: {rating.Rating}</p>
+            </div>
+          ))}
         </div>
-        ))}
-      </div>
+      )}
     </div>
   );
 };
 
-export default PreviousRatings;
+export default UserRatingsPage;
