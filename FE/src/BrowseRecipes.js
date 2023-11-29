@@ -14,7 +14,7 @@ const BrowseRecipes = () => {
         return;
       }
 
-      const apiKey = '47239b1c022f44d1b8c885f71fd373ea';
+      const apiKey = '7f4798b486ef4dc9b1e44e1740e0939f';
       const baseUrl = 'https://api.spoonacular.com/recipes/complexSearch';
       const params = new URLSearchParams({
         apiKey: apiKey,
