@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sklearn.metrics.pairwise import cosine_similarity
 import mysql.connector
+import numpy as np
 from pydantic import BaseModel
 from typing import List
 
@@ -87,6 +88,7 @@ async def add_username(data: UsernameAdd):
         # Close the database connection
         cursor.close()
         connection.close()
+
 @app.post("/storeRatings")
 async def store_ratings(ratings: List[Rating]):
     try:
@@ -109,6 +111,31 @@ async def store_ratings(ratings: List[Rating]):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+    finally:
+        # Close the database connection
+        cursor.close()
+        connection.close()
+
+@app.get("/recipeRating/{recipe_id}")   
+def get_recipe_rating(recipe_id: int):
+    try:
+        # Create a connection to the database
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor(dictionary=True)
+
+        # Query the database to get the rating of a specific recipe
+        query = "SELECT Rating FROM Ratings WHERE RecipeID = %s"
+        cursor.execute(query, (recipe_id,))
+        rating = cursor.fetchone()
+
+        return rating['Rating'] if rating else None
+
+    except Exception as e:
+        # Handle exceptions (e.g., database connection error)
+        # You might want to log the error or handle it in an appropriate way for your application
+        print(f"Error: {e}")
+        return None
 
     finally:
         # Close the database connection
@@ -174,9 +201,19 @@ def get_random_recipes(number_of_recipes: int):
     }
     response = requests.get(url, params=params)
     return response.json()['recipes'] if response.status_code == 200 else None
-def calculate_weights(similarity_scores, epsilon=1e-5):
-    # Invert the similarity scores and add a small epsilon to avoid division by zero
-    return [1 / (score + epsilon) for score in similarity_scores]
+
+def calculate_similarity_score(target_vector, recipe_vector):
+    # Calculate the squared differences between feature values
+    differences = [(a - b) ** 2 for a, b in zip(target_vector, recipe_vector)]
+    
+    # Sum up the squared differences
+    similarity_score = sum(differences)
+    
+    return similarity_score
+
+def calculate_weights(similarity_score, epsilon=1e-5):
+    # Invert the similarity score and add a small epsilon to avoid division by zero
+    return 1 / (similarity_score + epsilon)
 
 def create_feature_vector(recipe, all_ingredients):
     HIGH_WEIGHT = 1.0
@@ -234,6 +271,56 @@ async def get_similar_recipes(id: str):
     top_similar_recipes = sorted(similarities, key=lambda x: x[1], reverse=True)[:10]
     return [recipe for recipe,_ in top_similar_recipes]
 
+@app.get("/recommendRecipes/{username}")
+async def recommend_recipes_for_user_with_history(username: str):
+    try:
+        # Get user ratings from the database
+        user_ratings = await get_user_ratings(username)
+
+        if not user_ratings:
+            raise HTTPException(status_code=404, detail="User has no ratings")
+
+        # Extract recipe IDs and ratings from user ratings
+        recipe_ids = [rating['RecipeID'] for rating in user_ratings]
+        user_ratings_values = [rating['Rating'] for rating in user_ratings]
+
+        # Fetch details of target recipes from Spoonacular API
+        target_recipes_details = [get_recipe_details(str(recipe_id)) for recipe_id in recipe_ids]
+
+        # Extract all ingredients from target and comparing recipes
+        all_ingredients = extract_ingredients(target_recipes_details)
+
+        # Create feature vectors for target recipes
+        target_vectors = [create_feature_vector(recipe, all_ingredients) for recipe in target_recipes_details]
+
+        # Fetch details of comparing recipes from Spoonacular API
+        comparing_recipes_details = get_random_recipes(100)
+
+        # Create feature vectors for comparing recipes
+        comparing_vectors = [create_feature_vector(recipe, all_ingredients) for recipe in comparing_recipes_details]
+
+        # Calculate cosine similarity between target and comparing vectors
+        similarity_matrix = cosine_similarity(target_vectors, comparing_vectors)
+
+        # Transpose the similarity matrix to align dimensions correctly
+        similarity_matrix = similarity_matrix.T
+
+        # Calculate weighted average similarity score for each comparing recipe
+        weighted_similarity_scores = np.dot(similarity_matrix, user_ratings_values) / np.sum(similarity_matrix, axis=1)
+
+        # Sort comparing recipes based on weighted similarity scores
+        sorted_recipes = sorted(zip(comparing_recipes_details, weighted_similarity_scores), key=lambda x: x[1], reverse=True)
+
+        # Extract top 10 recommended recipes
+        top_recommendations = [recipe for recipe, _ in sorted_recipes[:10]]
+
+
+        return {"recommendations": top_recommendations}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+    
 if __name__ == "__main__":  
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
