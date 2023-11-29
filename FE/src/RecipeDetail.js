@@ -7,11 +7,44 @@ const RecipeDetail = () => {
   const [recipe, setRecipe] = useState(null);
   const [similarRecipes, setSimilarRecipes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [userRating, setUserRating] = useState(0);
+
+  const handleRateRecipe = async (rating) => {
+    // Extract userName from localStorage
+    const userName = localStorage.getItem('userName');
+
+    // Send the rating to the backend
+    try {
+      const response = await fetch('http://127.0.0.1:8000/storeRatings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify([
+          {
+            userName,
+            recipe_id: parseInt(id, 10),
+            rating,
+          },
+        ]),
+      });
+
+      if (response.ok) {
+        console.log('Rating stored successfully');
+        // Optionally, you can update the UI or provide feedback to the user
+      } else {
+        console.error('Failed to store rating');
+        // Optionally, handle the error or provide feedback to the user
+      }
+    } catch (error) {
+      console.error('Error storing rating:', error);
+    }
+  };
 
   useEffect(() => {
     const fetchRecipeDetails = async () => {
-      const apiKey = '7f4798b486ef4dc9b1e44e1740e0939f';
-      const url = `https://api.spoonacular.com/recipes/${id}/information?apiKey=${apiKey}`;
+    const apiKey = 'dc88b536a15648f9bb205c69a1a3dc54';
+    const url = `https://api.spoonacular.com/recipes/${id}/information?apiKey=${apiKey}`;
 
       try {
         const response = await fetch(url);
@@ -54,6 +87,22 @@ const RecipeDetail = () => {
       <h1 className="recipe-title">{recipe.title}</h1>
       <img className="recipe-image" src={recipe.image} alt={recipe.title} />
       <div className="recipe-summary" dangerouslySetInnerHTML={{ __html: recipe.summary }} />
+      
+      <div className="rating">
+        <span>Your Rating: </span>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <span
+            key={star}
+            className={`star ${star <= userRating ? 'selected' : ''}`}
+            onClick={() => {
+              setUserRating(star);
+              handleRateRecipe(star); // Call API directly when user clicks a star
+            }}
+          >
+            ★
+          </span>
+        ))}
+      </div>
 
       {recipe.extendedIngredients && (
         <div className="ingredients-section">
