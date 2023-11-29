@@ -21,7 +21,6 @@ const Welcome = () => {
         <h1>Welcome, {userName}.</h1>
         <div className="buttons-container">
           <button onClick={() => navigateToPage('Recommended Recipes')}>Recommended Recipes</button>
-          <button onClick={() => navigateToPage('Recommended Recipes by Genre')}>Recommended Recipes by Genre</button>
           <button onClick={() => navigateToPage('Browse Recipes')}>Browse Recipes</button>
           <button onClick={() => navigateToPage('Previous Ratings')}>Previous Ratings</button>
         </div>

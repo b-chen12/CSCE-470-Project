@@ -1,6 +1,7 @@
 // src/UserRatingsPage.js
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link} from 'react-router-dom';
+import './RecipePage.css';
 
 const UserRatingsPage = () => {
   const [userRatings, setUserRatings] = useState([]);
@@ -54,17 +55,17 @@ const UserRatingsPage = () => {
       {userRatings.length === 0 ? (
         <p>No ratings found for the user.</p>
       ) : (
-        <div className="recipes-container">
-          {userRatings.map((rating) => (
-            <div
-              key={rating.RecipeID}
-              className="recipe"
-              onClick={() => navigate(`/recipes/${rating.RecipeID}`)}
-            >
-              <h3>{recipeDetails[rating.RecipeID]}</h3>
-              <p>Rating: {rating.Rating}</p>
-            </div>
-          ))}
+        <div className="similar-recipes-section">
+          <ul className="similar-recipes-list">
+            {userRatings.map((rating) => (
+              <li key={rating.RecipeId}>
+              <Link to={`/recipes/${rating.RecipeID}`} className="right-aligned-link">
+                {recipeDetails[rating.RecipeID]}
+                <span className="rating">{' Rating: '}{rating.Rating}</span>
+              </Link>
+            </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>
