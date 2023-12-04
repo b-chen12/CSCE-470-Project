@@ -11,9 +11,9 @@ API_KEY = '68ce7924ec4b4909bf782daf2be82cc0'
 
 db_config = {
     "host": "sql5.freesqldatabase.com",
-    "user": "sql5664841",
-    "password": "lAPVsamawY",
-    "database": "sql5664841",
+    "user": "sql5667553",
+    "password": "Y8jlyN4zp3",
+    "database": "sql5667553",
     "port": 3306,
 }
 
