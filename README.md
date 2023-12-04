@@ -77,6 +77,6 @@ e002927cb2974115beed9afba7523c53
 290852aeb71d4b37adbed983a15b47f5
 
 Note:
-- If you run into this error - "Undefined map" that signals you've run out of API calls, and you will need to use a new API key.
+- If you run into this error - "Undefined map" that signals you've run out of API calls, and you will need to use a new API key. You will need to replace the API key in the following files: api.py, BrowseRecipes.js, RecipeDetails.js, SelectAndRateRecipe.js.
 - If you run into this error - "UnboundLocalError: local variable 'cursor' referenced before assignment" in the backend, the database free trial has expired, and the code will be unable to run one week after 12/4/23.
 
