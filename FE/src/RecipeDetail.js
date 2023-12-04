@@ -43,13 +43,8 @@ const RecipeDetail = () => {
 
   useEffect(() => {
     const fetchRecipeDetails = async () => {
-<<<<<<< HEAD
-      const apiKey = '0628066b63b349d686703a51b0da80f2';
-      const url = `https://api.spoonacular.com/recipes/${id}/information?apiKey=${apiKey}`;
-=======
-    const apiKey = 'dc88b536a15648f9bb205c69a1a3dc54';
+    const apiKey = '68ce7924ec4b4909bf782daf2be82cc0';
     const url = `https://api.spoonacular.com/recipes/${id}/information?apiKey=${apiKey}`;
->>>>>>> 342a34b78bbce7bb955b06854ae4ba2a373e2de4
 
       try {
         const response = await fetch(url);

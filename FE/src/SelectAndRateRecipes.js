@@ -11,7 +11,7 @@ const SelectAndRateRecipes = () => {
 
   useEffect(() => {
     const fetchRandomRecipes = async () => {
-      const apiKey = '7f4798b486ef4dc9b1e44e1740e0939f';
+      const apiKey = '68ce7924ec4b4909bf782daf2be82cc0';
       const response = await fetch(`https://api.spoonacular.com/recipes/random?apiKey=${apiKey}&number=20`);
       const data = await response.json();
       setRecipes(data.recipes);
@@ -117,7 +117,7 @@ const SelectAndRateRecipes = () => {
         <div className="rating-section">
           <h2>Rate the selected recipes</h2>
           {Array.from(selectedRecipes).map(id => (
-            <div key={id} className="rating">
+            <div key={id} className="ratings">
               <span>{recipes.find(recipe => recipe.id === id).title}: </span>
               {renderStars(id)}
             </div>
