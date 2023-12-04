@@ -47,12 +47,13 @@ Prereqs:
 
 Database information: 
 
+```
 Host: sql5.freesqldatabase.com
-Database name: sql5664841
-Database user: sql5664841
-Database password: lAPVsamawY
+Database name: sql5667553
+Database user: sql5667553
+Database password: Y8jlyN4zp3
 Port number: 3306
-
+```
 Reference the end of this YouTube Video on how to use these credentials to connect to the DB:
 https://www.youtube.com/watch?v=TMGHOW8Hzvw&t=324s
 
