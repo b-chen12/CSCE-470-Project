@@ -1,5 +1,8 @@
 # CSCE-470-Project
 
+# Intro Video
+https://youtu.be/GhsCtQRcsTs
+
 # Backend Setup
 
 To run the back end of this project, follow these steps:
